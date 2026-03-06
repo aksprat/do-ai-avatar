@@ -64,7 +64,6 @@ def build_prompt(name):
         f"conquering cloud challenges with DigitalOcean Serverless Inference. "
         f"The hero wears a futuristic high-tech suit in DigitalOcean's signature blue (#0069FF) "
         f"and teal (#00B4D8) colors with glowing circuit patterns. "
-	    f”photorealistic cinematic lighting ultra detailed 8k concept art marvel style superhero portrait with dramatic lighting.”
         f"A glowing DigitalOcean logo emblem is prominently featured on the chest. "
         f"The dynamic background shows a vibrant digital cloud cityscape with floating server nodes "
         f"and glowing data streams. The art style is cinematic comic-book with bold, vivid colors, "
