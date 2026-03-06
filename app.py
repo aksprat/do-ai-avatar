@@ -69,7 +69,8 @@ def build_prompt(name):
         
         Scene:
         {name} standing confidently as a powerful cloud hero controlling
-        AI infrastructure and cloud systems.
+        AI infrastructure and cloud systems,
+        DO NOT CHANGE THE FACE.
         
         Environment:
         floating Kubernetes clusters,
@@ -82,16 +83,12 @@ def build_prompt(name):
         Hero suit:
         futuristic tech armor with glowing blue highlights,
         AI circuits embedded in the suit,
-        energy core on chest.
+        a glowing DigitalOcean logo emblem is prominently featured on the chest.
         
         Atmosphere:
         epic lighting,
         cinematic depth of field,
         heroic pose.
-        
-        Footer text:
-        Generated with DigitalOcean Serverless Inference
-        CloudConf Bangalore
         """
     )
 
