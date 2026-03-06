@@ -1,0 +1,28 @@
+name: do-ai-avatar
+region: blr   # Bangalore region (closest to Cloudconf event)
+
+services:
+  - name: web
+    source_dir: /
+    github:
+      branch: main
+      deploy_on_push: true
+    build_command: pip install -r requirements.txt
+    run_command: gunicorn app:app --workers 2 --threads 4 --bind 0.0.0.0:$PORT
+    environment_slug: python
+    instance_count: 1
+    instance_size_slug: apps-s-1vcpu-0.5gb
+    http_port: 8080
+    envs:
+      - key: DIGITALOCEAN_API_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: SECRET_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: ADMIN_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: DEBUG
+        scope: RUN_TIME
+        value: "false"
