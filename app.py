@@ -60,16 +60,39 @@ def save_lead(name, email, company, designation):
 
 def build_prompt(name):
     return (
-        f"Create a stunning superhero avatar portrait of a tech innovator named {name} "
-        f"conquering cloud challenges with DigitalOcean Serverless Inference. "
-        f"The hero wears a futuristic high-tech suit in DigitalOcean's signature blue (#0069FF) "
-        f"and teal (#00B4D8) colors with glowing circuit patterns. "
-        f"A glowing DigitalOcean logo emblem is prominently featured on the chest. "
-        f"The dynamic background shows a vibrant digital cloud cityscape with floating server nodes "
-        f"and glowing data streams. The art style is cinematic comic-book with bold, vivid colors, "
-        f"dramatic lighting, and heroic perspective. The character is depicted in a powerful, "
-        f"confident pose. "
-        f"Ultra-high quality, detailed, professional digital artwork."
+       f"""
+        Ultra detailed cinematic superhero portrait of {name}, a futuristic AI cloud architect.
+        
+        Style:
+        photorealistic, cinematic lighting, ultra detailed, 8k concept art,
+        marvel style superhero portrait, dramatic lighting
+        
+        Scene:
+        {name} standing confidently as a powerful cloud hero controlling
+        AI infrastructure and cloud systems.
+        
+        Environment:
+        floating Kubernetes clusters,
+        glowing neural network patterns,
+        cloud servers orbiting around,
+        data streams flowing through the sky,
+        futuristic Bangalore skyline at sunset,
+        digital particles and energy waves.
+        
+        Hero suit:
+        futuristic tech armor with glowing blue highlights,
+        AI circuits embedded in the suit,
+        energy core on chest.
+        
+        Atmosphere:
+        epic lighting,
+        cinematic depth of field,
+        heroic pose.
+        
+        Footer text:
+        Generated with DigitalOcean Serverless Inference
+        CloudConf Bangalore
+        """
     )
 
 
