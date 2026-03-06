@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+
+{% block title %}Your DO AI Avatar – {{ name }}{% endblock %}
+
+{% block content %}
+
+<section class="result-section py-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-7 col-md-9 text-center">
+
+        <!-- Loading state -->
+        <div id="loadingState">
+          <div class="loading-orb mb-4">
+            <div class="orb-ring orb-ring-1"></div>
+            <div class="orb-ring orb-ring-2"></div>
+            <div class="orb-ring orb-ring-3"></div>
+            <div class="orb-core">
+              <i class="fa-solid fa-wand-magic-sparkles fa-2x"></i>
+            </div>
+          </div>
+          <h2 class="fw-700 mb-2">Forging Your Superhero Identity…</h2>
+          <p class="text-muted mb-3">
+            Our AI is crafting a unique avatar for
+            <strong class="text-gradient">{{ name }}</strong>.
+            This usually takes 10–30 seconds.
+          </p>
+          <div class="progress do-progress mb-2" style="height: 6px;">
+            <div
+              id="progressBar"
+              class="progress-bar progress-bar-striped progress-bar-animated"
+              role="progressbar"
+              style="width: 15%"
+            ></div>
+          </div>
+          <p id="statusText" class="text-muted small">Queued…</p>
+        </div>
+
+        <!-- Error state -->
+        <div id="errorState" class="d-none">
+          <div class="error-icon mb-4">
+            <i class="fa-solid fa-circle-exclamation fa-4x text-danger"></i>
+          </div>
+          <h2 class="fw-700 mb-2">Oops! Something went wrong</h2>
+          <p id="errorMessage" class="text-muted mb-4">
+            We couldn't generate your avatar. Please try again.
+          </p>
+          <a href="/" class="btn btn-do-primary">
+            <i class="fa-solid fa-arrow-left me-2"></i> Try Again
+          </a>
+        </div>
+
+        <!-- Success state -->
+        <div id="successState" class="d-none">
+          <div class="success-badge mb-3">
+            <i class="fa-solid fa-circle-check me-1"></i> Your Superhero Avatar is Ready!
+          </div>
+          <h2 class="fw-700 mb-1">
+            Meet
+            <span class="text-gradient">{{ name }}</span>,
+            Cloud Superhero! 🦸
+          </h2>
+          <p class="text-muted mb-4">
+            Powered by DigitalOcean Serverless Inference &amp; fal-ai/flux/schnell
+          </p>
+
+          <!-- Avatar image -->
+          <div class="avatar-frame mb-4">
+            <img
+              id="avatarImage"
+              src=""
+              alt="AI-generated superhero avatar for {{ name }}"
+              class="img-fluid avatar-img"
+            />
+            <div class="avatar-glow"></div>
+          </div>
+
+          <!-- Action buttons -->
+          <div class="d-flex flex-wrap justify-content-center gap-3 mb-4">
+            <a
+              id="downloadBtn"
+              href="#"
+              download="do-ai-avatar-{{ name | lower | replace(' ', '-') }}.jpg"
+              class="btn btn-do-primary"
+              target="_blank"
+            >
+              <i class="fa-solid fa-download me-2"></i> Download Avatar
+            </a>
+            <a href="/" class="btn btn-do-outline">
+              <i class="fa-solid fa-arrows-rotate me-2"></i> Generate Another
+            </a>
+          </div>
+
+          <!-- Branding footer card -->
+          <div class="branding-card p-3">
+            <p class="mb-0 small">
+              <i class="fa-solid fa-cloud me-1 text-primary"></i>
+              Built using <strong>DigitalOcean Serverless Inference</strong>
+              at <strong>Cloudconf, Bangalore</strong>
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  (function () {
+    const REQUEST_ID = "{{ request_id | safe }}";
+    const POLL_INTERVAL_MS = 3000;
+    const MAX_POLLS = 60; // 3 min timeout
+
+    const loadingState  = document.getElementById("loadingState");
+    const errorState    = document.getElementById("errorState");
+    const successState  = document.getElementById("successState");
+    const progressBar   = document.getElementById("progressBar");
+    const statusText    = document.getElementById("statusText");
+    const errorMessage  = document.getElementById("errorMessage");
+    const avatarImage   = document.getElementById("avatarImage");
+    const downloadBtn   = document.getElementById("downloadBtn");
+
+    let polls = 0;
+
+    function showError(msg) {
+      loadingState.classList.add("d-none");
+      errorMessage.textContent = msg || "Unknown error. Please try again.";
+      errorState.classList.remove("d-none");
+    }
+
+    function showSuccess(imageUrl) {
+      loadingState.classList.add("d-none");
+      avatarImage.src = imageUrl;
+      downloadBtn.href = imageUrl;
+      successState.classList.remove("d-none");
+      launchConfetti();
+    }
+
+    function updateProgress(status) {
+      const map = {
+        IN_QUEUE:     { width: "20%", text: "Queued – waiting for a GPU…" },
+        IN_PROGRESS:  { width: "65%", text: "Generating your avatar…" },
+        COMPLETED:    { width: "100%", text: "Done!" },
+        FAILED:       { width: "100%", text: "Failed." },
+      };
+      const entry = map[status] || { width: "30%", text: status };
+      progressBar.style.width  = entry.width;
+      statusText.textContent   = entry.text;
+    }
+
+    async function poll() {
+      if (polls >= MAX_POLLS) {
+        showError("Avatar generation timed out. Please try again.");
+        return;
+      }
+      polls++;
+
+      try {
+        const res  = await fetch(`/api/status/${REQUEST_ID}`);
+        const data = await res.json();
+
+        if (!res.ok) {
+          showError(data.error || `API error ${res.status}`);
+          return;
+        }
+
+        const status = (data.status || "").toUpperCase();
+        updateProgress(status);
+
+        if (status === "COMPLETED") {
+          // Extract image URL from various possible response shapes
+          const images =
+            data?.output?.images ||
+            data?.result?.images ||
+            data?.images ||
+            [];
+          const imageUrl =
+            (images[0] && (images[0].url || images[0])) ||
+            data?.output?.image?.url ||
+            data?.output?.url ||
+            null;
+
+          if (imageUrl) {
+            showSuccess(imageUrl);
+          } else {
+            showError("Avatar generated but no image URL was returned.");
+          }
+        } else if (status === "FAILED" || status === "ERROR") {
+          const reason =
+            data?.error ||
+            data?.output?.error ||
+            "Generation failed. Please try again.";
+          showError(reason);
+        } else {
+          setTimeout(poll, POLL_INTERVAL_MS);
+        }
+      } catch (err) {
+        console.error("Poll error:", err);
+        if (polls < MAX_POLLS) {
+          setTimeout(poll, POLL_INTERVAL_MS);
+        } else {
+          showError("Network error while checking status.");
+        }
+      }
+    }
+
+    // Confetti effect
+    function launchConfetti() {
+      if (typeof confetti === "function") {
+        confetti({ particleCount: 120, spread: 80, origin: { y: 0.5 } });
+      }
+    }
+
+    // Start polling
+    setTimeout(poll, 1500);
+  })();
+</script>
+
+<!-- canvas-confetti (lightweight) -->
+<script
+  src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"
+  integrity="sha256-3iHpshILgNdqXbIb/HMq44jGxWkiKqkB8YuFHxJo28U="
+  crossorigin="anonymous"
+></script>
+{% endblock %}
