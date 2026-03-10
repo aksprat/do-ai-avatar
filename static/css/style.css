@@ -4,7 +4,7 @@
    Primary Blue  : #0069FF
    Gradient Blue : #00C8FF
    Dark BG       : #0D1117
-   Card BG       : #FFFFFF
+   Card BG       : #161B22
    ============================================= */
 
 /* ---- Base ---- */
@@ -14,10 +14,10 @@
   --do-teal:      #00B4D8;
   --do-cyan:      #00C8FF;
   --do-dark:      #0D1117;
-  --do-card:      #FFFFFF;
+  --do-card:      #161B22;
   --do-border:    #2A3140;
   --do-text:      #E6EDF3;
-  --do-muted:     #FFFFFF;
+  --do-muted:     #8B949E;
   --radius-md:    12px;
   --radius-lg:    18px;
   --shadow-glow:  0 0 30px rgba(0, 105, 255, 0.3);
